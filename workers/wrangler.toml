@@ -1,0 +1,15 @@
+name = "nexusvault-sync"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+[[r2_buckets]]
+binding = "VAULT_STORAGE"
+bucket_name = "nexusvault-vaults"
+
+[[durable_objects.bindings]]
+name = "VAULT_SYNC"
+class_name = "VaultSync"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["VaultSync"]

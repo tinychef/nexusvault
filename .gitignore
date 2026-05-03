@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build
+dist/
+dist-ssr/
+
+# Tauri
+src-tauri/target/
+src-tauri/gen/
+
+# Workers
+workers/node_modules/
+workers/.wrangler/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Vault data (never commit user data)
+*.loro
+*.db
+*.db-journal
+*.db-wal
