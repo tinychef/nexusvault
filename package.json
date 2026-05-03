@@ -44,12 +44,14 @@
     "@tiptap/pm": "^3.22.5",
     "@tiptap/react": "^3.22.5",
     "@tiptap/starter-kit": "^3.22.5",
+    "@tiptap/suggestion": "^3.22.5",
     "libsodium-wrappers": "^0.8.4",
     "loro-crdt": "^1.12.1",
     "loro-prosemirror": "^0.4.3",
     "lowlight": "^3.3.0",
     "lucide-react": "^1.14.0",
     "react-router-dom": "^7.14.2",
+    "tippy.js": "^6.3.7",
     "zustand": "^5.0.12"
   },
   "devDependencies": {

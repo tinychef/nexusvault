@@ -6,10 +6,7 @@ compatibility_date = "2025-01-01"
 binding = "VAULT_STORAGE"
 bucket_name = "nexusvault-vaults"
 
-[[durable_objects.bindings]]
-name = "VAULT_SYNC"
-class_name = "VaultSync"
-
-[[migrations]]
-tag = "v1"
-new_classes = ["VaultSync"]
+[[d1_databases]]
+binding = "DB"
+database_name = "nexusvault-metadata"
+database_id = "default-local-d1-id"

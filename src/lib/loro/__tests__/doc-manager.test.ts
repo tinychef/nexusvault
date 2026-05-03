@@ -30,7 +30,7 @@ describe("doc-manager", () => {
   it("should load a document if it exists", async () => {
     const validDoc = new LoroDoc();
     validDoc.getText("content").insert(0, "Hello");
-    const snapshot = validDoc.export({ mode: "snapshot" });
+    const snapshot = new Uint8Array(validDoc.export({ mode: "snapshot" }));
     
     vi.mocked(exists).mockResolvedValueOnce(true);
     vi.mocked(readFile).mockResolvedValueOnce(snapshot);

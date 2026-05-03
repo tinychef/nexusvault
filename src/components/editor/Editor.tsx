@@ -20,6 +20,10 @@ import { LoroSyncPlugin, LoroUndoPlugin } from "loro-prosemirror";
 import { useEditorStore } from "@stores/editor";
 import { useDocument } from "@hooks/useDocument";
 import { EditorToolbar } from "./EditorToolbar";
+import { SlashCommands } from "./extensions/SlashCommands";
+import { getSuggestionItems, renderSuggestion } from "./extensions/suggestion";
+import { WikiLink } from "./extensions/WikiLink";
+import { getWikiSuggestionItems, renderWikiSuggestion } from "./extensions/wikiSuggestion";
 
 const lowlight = createLowlight(common);
 
@@ -68,6 +72,18 @@ export function Editor({ docId, loroDoc }: EditorProps) {
       Underline,
       Typography,
       Placeholder.configure({ placeholder: "Start writing… (type / for commands)" }),
+      SlashCommands.configure({
+        suggestion: {
+          items: getSuggestionItems,
+          render: renderSuggestion,
+        },
+      }),
+      WikiLink.configure({
+        suggestion: {
+          items: getWikiSuggestionItems,
+          render: renderWikiSuggestion,
+        },
+      }),
     ],
     editorProps: {
       attributes: { class: "tiptap" },
