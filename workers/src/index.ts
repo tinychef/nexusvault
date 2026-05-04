@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { bearerAuth } from "hono/bearer-auth";
 
 type Bindings = {
-  VAULT_STORAGE?: R2Bucket;  // optional until R2 is enabled in dashboard
+  VAULT_STORAGE: R2Bucket;
   DB: D1Database;
   SYNC_STATE: KVNamespace;
   SYNC_SECRET_KEY?: string;
@@ -20,9 +20,9 @@ app.use("/sync/*", async (c, next) => {
 app.get("/health", (c) => {
   return c.json({
     service: "NexusVault Sync",
-    version: "0.3.0",
+    version: "0.4.0",
     status: "operational",
-    storage: c.env.VAULT_STORAGE ? "r2" : "d1-fallback",
+    storage: "r2",
     environment: c.env.ENVIRONMENT || "production",
   });
 });
@@ -58,25 +58,12 @@ app.get("/sync/vault/:vaultId/index", async (c) => {
 app.get("/sync/vault/:vaultId/doc/:docId", async (c) => {
   const vaultId = c.req.param("vaultId");
   const docId = c.req.param("docId");
-  const objectPath = `${vaultId}/${docId}.loro`;
-
-  // Use R2 when available, fall back to D1 blob storage
-  if (c.env.VAULT_STORAGE) {
-    const object = await c.env.VAULT_STORAGE.get(objectPath);
-    if (!object) return c.json({ error: "Document not found" }, 404);
-    const headers = new Headers();
-    object.writeHttpMetadata(headers);
-    headers.set("etag", object.httpEtag);
-    return new Response(object.body, { headers });
-  }
-
-  const row = await c.env.DB.prepare(
-    "SELECT data FROM blobs WHERE vault_id = ? AND doc_id = ?",
-  ).bind(vaultId, docId).first<{ data: string }>();
-  if (!row) return c.json({ error: "Document not found" }, 404);
-
-  const bytes = Uint8Array.from(atob(row.data), (c) => c.charCodeAt(0));
-  return new Response(bytes, { headers: { "content-type": "application/octet-stream" } });
+  const object = await c.env.VAULT_STORAGE.get(`${vaultId}/${docId}.loro`);
+  if (!object) return c.json({ error: "Document not found" }, 404);
+  const headers = new Headers();
+  object.writeHttpMetadata(headers);
+  headers.set("etag", object.httpEtag);
+  return new Response(object.body, { headers });
 });
 
 app.post("/sync/vault/:vaultId/doc/:docId", async (c) => {
@@ -87,18 +74,9 @@ app.post("/sync/vault/:vaultId/doc/:docId", async (c) => {
   const lastModified = parseInt(c.req.header("X-Doc-Modified") || String(Date.now()));
   const wordCount = parseInt(c.req.header("X-Doc-WordCount") || "0");
 
-  if (c.env.VAULT_STORAGE) {
-    await c.env.VAULT_STORAGE.put(`${vaultId}/${docId}.loro`, body, {
-      customMetadata: { title, lastModified: String(lastModified) },
-    });
-  } else {
-    // Store in D1 as base64 when R2 is unavailable
-    const b64 = btoa(String.fromCharCode(...new Uint8Array(body)));
-    await c.env.DB.prepare(
-      `INSERT INTO blobs (vault_id, doc_id, data) VALUES (?, ?, ?)
-       ON CONFLICT(vault_id, doc_id) DO UPDATE SET data = excluded.data`,
-    ).bind(vaultId, docId, b64).run();
-  }
+  await c.env.VAULT_STORAGE.put(`${vaultId}/${docId}.loro`, body, {
+    customMetadata: { title, lastModified: String(lastModified) },
+  });
 
   await c.env.DB.prepare(
     `INSERT INTO metadata (vault_id, doc_id, title, last_modified, word_count)
