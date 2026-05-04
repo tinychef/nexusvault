@@ -11,20 +11,39 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-app.use("/sync/*", async (c, next) => {
-  const token = c.env.SYNC_SECRET_KEY || "development-token-123";
-  const auth = bearerAuth({ token });
-  return auth(c, next);
-});
-
-app.get("/health", (c) => {
-  return c.json({
+function serviceStatus(environment?: string) {
+  return {
     service: "NexusVault Sync",
     version: "0.4.0",
     status: "operational",
     storage: "r2",
-    environment: c.env.ENVIRONMENT || "production",
-  });
+    environment: environment || "production",
+  };
+}
+
+app.use("*", async (c, next) => {
+  try {
+    await next();
+  } catch {
+    return c.json({ error: "Internal server error" }, 500);
+  }
+});
+
+app.use("/sync/*", async (c, next) => {
+  const token = c.env.SYNC_SECRET_KEY;
+  if (!token) {
+    return c.json({ error: "Sync service misconfigured" }, 503);
+  }
+  const auth = bearerAuth({ token });
+  return auth(c, next);
+});
+
+app.get("/", (c) => {
+  return c.json(serviceStatus(c.env.ENVIRONMENT));
+});
+
+app.get("/health", (c) => {
+  return c.json(serviceStatus(c.env.ENVIRONMENT));
 });
 
 app.post("/sync/init", async (c) => {

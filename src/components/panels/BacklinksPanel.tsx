@@ -23,7 +23,6 @@ export function BacklinksPanel() {
 
   useEffect(() => {
     if (!activeDocId) {
-      setBacklinks([]);
       return;
     }
 
