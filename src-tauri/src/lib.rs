@@ -17,6 +17,12 @@ pub fn run() {
             sql: include_str!("../migrations/002_fts.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 3,
+            description: "create_embeddings_table",
+            sql: include_str!("../migrations/003_embeddings.sql"),
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
