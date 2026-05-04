@@ -43,10 +43,7 @@ export const TagExtension = Node.create({
   renderHTML({ node, HTMLAttributes }) {
     return [
       "span",
-      mergeAttributes(
-        { "data-type": "tag", class: "inline-tag" },
-        HTMLAttributes
-      ),
+      mergeAttributes({ "data-type": "tag", class: "inline-tag" }, HTMLAttributes),
       `#${node.attrs.tag}`,
     ];
   },

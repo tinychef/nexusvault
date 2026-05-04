@@ -41,7 +41,7 @@ export const syncEngine = {
     docId: string,
     binary: Uint8Array,
     metadata: { title: string; lastModified: number; wordCount: number },
-    key: Uint8Array
+    key: Uint8Array,
   ): Promise<void> {
     // 1. Encrypt the Loro CRDT binary
     const encrypted = encryptData(binary, key);
@@ -56,7 +56,10 @@ export const syncEngine = {
         "X-Doc-Modified": metadata.lastModified.toString(),
         "X-Doc-WordCount": metadata.wordCount.toString(),
       },
-      body: encrypted.buffer.slice(encrypted.byteOffset, encrypted.byteOffset + encrypted.byteLength) as ArrayBuffer,
+      body: encrypted.buffer.slice(
+        encrypted.byteOffset,
+        encrypted.byteOffset + encrypted.byteLength,
+      ) as ArrayBuffer,
     });
 
     if (!response.ok) {
@@ -70,7 +73,7 @@ export const syncEngine = {
   async pullDocument(
     vaultId: string,
     docId: string,
-    key: Uint8Array
+    key: Uint8Array,
   ): Promise<Uint8Array> {
     const response = await fetch(`${WORKER_URL}/sync/vault/${vaultId}/doc/${docId}`, {
       headers: {

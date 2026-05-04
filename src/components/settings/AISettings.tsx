@@ -27,7 +27,9 @@ export function AISettings() {
   );
   const [apiKey, setApiKey] = useState(aiProvider?.apiKey ?? "");
   const [model, setModel] = useState(aiProvider?.model ?? DEFAULT_MODELS["claude"]);
-  const [baseUrl, setBaseUrl] = useState(aiProvider?.baseUrl ?? BASE_URLS["claude"] ?? "");
+  const [baseUrl, setBaseUrl] = useState(
+    aiProvider?.baseUrl ?? BASE_URLS["claude"] ?? "",
+  );
   const [testStatus, setTestStatus] = useState<"idle" | "ok" | "err">("idle");
   const [testMessage, setTestMessage] = useState("");
 
@@ -48,13 +50,14 @@ export function AISettings() {
     setTestMessage("Testing…");
 
     try {
-      const url = provider === "ollama"
-        ? `${baseUrl || "http://localhost:11434"}/api/tags`
-        : provider === "claude"
-          ? "https://api.anthropic.com/v1/models"
-          : provider === "groq"
-            ? "https://api.groq.com/openai/v1/models"
-            : "https://api.openai.com/v1/models";
+      const url =
+        provider === "ollama"
+          ? `${baseUrl || "http://localhost:11434"}/api/tags`
+          : provider === "claude"
+            ? "https://api.anthropic.com/v1/models"
+            : provider === "groq"
+              ? "https://api.groq.com/openai/v1/models"
+              : "https://api.openai.com/v1/models";
 
       const headers: Record<string, string> = {};
       if (provider === "claude") {
@@ -83,7 +86,9 @@ export function AISettings() {
   return (
     <div className="settings-section">
       <div className="settings-field">
-        <label className="settings-label" htmlFor="ai-provider">Provider</label>
+        <label className="settings-label" htmlFor="ai-provider">
+          Provider
+        </label>
         <select
           id="ai-provider"
           className="settings-select"
@@ -91,14 +96,18 @@ export function AISettings() {
           onChange={(e) => handleProviderChange(e.target.value as AIProvider["name"])}
         >
           {PROVIDERS.map((p) => (
-            <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>
+            <option key={p} value={p}>
+              {p.charAt(0).toUpperCase() + p.slice(1)}
+            </option>
           ))}
         </select>
       </div>
 
       {needsApiKey && (
         <div className="settings-field">
-          <label className="settings-label" htmlFor="ai-key">API Key</label>
+          <label className="settings-label" htmlFor="ai-key">
+            API Key
+          </label>
           <input
             id="ai-key"
             type="password"
@@ -108,12 +117,16 @@ export function AISettings() {
             placeholder="sk-…"
             autoComplete="off"
           />
-          <span className="settings-hint">Stored locally, never sent to NexusVault servers.</span>
+          <span className="settings-hint">
+            Stored locally, never sent to NexusVault servers.
+          </span>
         </div>
       )}
 
       <div className="settings-field">
-        <label className="settings-label" htmlFor="ai-model">Model</label>
+        <label className="settings-label" htmlFor="ai-model">
+          Model
+        </label>
         <input
           id="ai-model"
           type="text"
@@ -125,7 +138,9 @@ export function AISettings() {
 
       {provider === "ollama" && (
         <div className="settings-field">
-          <label className="settings-label" htmlFor="ai-base-url">Base URL</label>
+          <label className="settings-label" htmlFor="ai-base-url">
+            Base URL
+          </label>
           <input
             id="ai-base-url"
             type="text"

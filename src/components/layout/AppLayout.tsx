@@ -140,7 +140,16 @@ export function AppLayout() {
       </main>
 
       {/* Right panel toggles: backlinks / graph / AI */}
-      <div style={{ position: "fixed", top: 8, right: 8, display: "flex", gap: 4, zIndex: 10 }}>
+      <div
+        style={{
+          position: "fixed",
+          top: 8,
+          right: 8,
+          display: "flex",
+          gap: 4,
+          zIndex: 10,
+        }}
+      >
         <button
           type="button"
           className="right-panel-toggle"

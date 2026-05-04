@@ -54,7 +54,11 @@ describe("searchSemantic", () => {
     const queryVec = await embedText("test query");
     vi.mocked(mockDb.select).mockResolvedValueOnce([
       { doc_id: "a", vector_json: JSON.stringify(queryVec), title: "Perfect match" },
-      { doc_id: "b", vector_json: JSON.stringify(new Array(512).fill(0)), title: "No match" },
+      {
+        doc_id: "b",
+        vector_json: JSON.stringify(new Array(512).fill(0)),
+        title: "No match",
+      },
     ]);
 
     const results = await searchSemantic("test query", 2);

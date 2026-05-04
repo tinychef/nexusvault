@@ -22,7 +22,7 @@ async function callLLM(
       }),
     });
     if (!res.ok) throw new Error(`Anthropic API error: ${res.status}`);
-    const data = await res.json() as { content: { text: string }[] };
+    const data = (await res.json()) as { content: { text: string }[] };
     return data.content[0]?.text ?? "";
   }
 
@@ -50,7 +50,7 @@ async function callLLM(
     }),
   });
   if (!res.ok) throw new Error(`LLM API error: ${res.status}`);
-  const data = await res.json() as { choices: { message: { content: string } }[] };
+  const data = (await res.json()) as { choices: { message: { content: string } }[] };
   return data.choices[0]?.message.content ?? "";
 }
 
@@ -58,7 +58,10 @@ async function callLLM(
  * Suggests up to 3 tags for the given document content.
  * Returns an array of tag strings (without leading #).
  */
-export async function suggestTags(content: string, provider: AIProvider): Promise<string[]> {
+export async function suggestTags(
+  content: string,
+  provider: AIProvider,
+): Promise<string[]> {
   if (!content.trim()) return [];
 
   const text = await callLLM(
@@ -77,7 +80,10 @@ export async function suggestTags(content: string, provider: AIProvider): Promis
 /**
  * Generates a 1-2 sentence summary for the given document content.
  */
-export async function quickSummary(content: string, provider: AIProvider): Promise<string> {
+export async function quickSummary(
+  content: string,
+  provider: AIProvider,
+): Promise<string> {
   if (!content.trim()) return "";
 
   return callLLM(

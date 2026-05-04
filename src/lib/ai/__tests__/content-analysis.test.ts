@@ -24,7 +24,9 @@ beforeEach(() => {
 
 describe("suggestTags", () => {
   it("returns up to 3 tags parsed from comma-separated response", async () => {
-    mockFetch.mockResolvedValueOnce(makeClaudeResponse("programming, productivity, tools"));
+    mockFetch.mockResolvedValueOnce(
+      makeClaudeResponse("programming, productivity, tools"),
+    );
     const tags = await suggestTags("A note about coding tools.", mockProvider);
     expect(tags).toEqual(["programming", "productivity", "tools"]);
   });
@@ -42,7 +44,9 @@ describe("suggestTags", () => {
   });
 
   it("normalises spaces to hyphens", async () => {
-    mockFetch.mockResolvedValueOnce(makeClaudeResponse("knowledge management, note taking, tools"));
+    mockFetch.mockResolvedValueOnce(
+      makeClaudeResponse("knowledge management, note taking, tools"),
+    );
     const tags = await suggestTags("My notes.", mockProvider);
     expect(tags).toContain("knowledge-management");
   });
@@ -52,7 +56,10 @@ describe("quickSummary", () => {
   it("returns the LLM response as-is", async () => {
     const summary = "A brief note about building local-first apps.";
     mockFetch.mockResolvedValueOnce(makeClaudeResponse(summary));
-    const result = await quickSummary("A long note about local-first apps.", mockProvider);
+    const result = await quickSummary(
+      "A long note about local-first apps.",
+      mockProvider,
+    );
     expect(result).toBe(summary);
   });
 

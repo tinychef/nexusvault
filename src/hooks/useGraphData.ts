@@ -68,7 +68,9 @@ export function useGraphData(activeDocId: string | null) {
     }
 
     loadGraphData();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [activeDocId]);
 
   return { graphData, isLoading };

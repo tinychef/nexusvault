@@ -7,7 +7,7 @@ interface SyncState {
   lastSynced: number | null;
   error: string | null;
   pendingChanges: number;
-  
+
   setStatus: (status: SyncStatus) => void;
   setLastSynced: (timestamp: number) => void;
   setError: (error: string | null) => void;
@@ -20,10 +20,11 @@ export const useSyncStore = create<SyncState>((set) => ({
   lastSynced: null,
   error: null,
   pendingChanges: 0,
-  
+
   setStatus: (status) => set({ status }),
   setLastSynced: (lastSynced) => set({ lastSynced }),
   setError: (error) => set({ error }),
   setPendingChanges: (pendingChanges) => set({ pendingChanges }),
-  incrementPendingChanges: () => set((state) => ({ pendingChanges: state.pendingChanges + 1 })),
+  incrementPendingChanges: () =>
+    set((state) => ({ pendingChanges: state.pendingChanges + 1 })),
 }));

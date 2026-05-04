@@ -756,13 +756,23 @@ button {
 }
 
 @keyframes qs-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes qs-scale-in {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* ── Graph View ────────────────────────────────────────────────────────────── */
@@ -924,7 +934,9 @@ button {
   color: var(--nv-text-muted);
   flex-shrink: 0;
   opacity: 0;
-  transition: opacity 100ms, background 100ms;
+  transition:
+    opacity 100ms,
+    background 100ms;
 }
 
 .editor-tab:hover .tab-close,
@@ -950,9 +962,15 @@ button {
   --nv-border: #dee2e6;
 }
 
-[data-theme="light"] .tiptap h1 { color: #1a1b1e; }
-[data-theme="light"] .tiptap h2 { color: #2c2e33; }
-[data-theme="light"] .tiptap h3 { color: #343a40; }
+[data-theme="light"] .tiptap h1 {
+  color: #1a1b1e;
+}
+[data-theme="light"] .tiptap h2 {
+  color: #2c2e33;
+}
+[data-theme="light"] .tiptap h3 {
+  color: #343a40;
+}
 
 /* ── AI Chat panel ─────────────────────────────────────────────────────────── */
 .vault-chat {
@@ -985,7 +1003,9 @@ button {
   color: var(--nv-text-muted);
 }
 
-.chat-message.user .chat-role { color: var(--nv-accent); }
+.chat-message.user .chat-role {
+  color: var(--nv-accent);
+}
 
 .chat-content {
   font-size: 13px;
@@ -1167,7 +1187,9 @@ button {
   border: 1px solid var(--nv-border);
   color: var(--nv-text-primary);
   background: var(--nv-bg-tertiary);
-  transition: background 100ms, border-color 100ms;
+  transition:
+    background 100ms,
+    border-color 100ms;
   cursor: pointer;
 }
 

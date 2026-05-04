@@ -82,9 +82,13 @@ export const WikiLinkList = forwardRef((props: WikiLinkListProps, ref) => {
             }`}
             onClick={() => selectItem(index)}
           >
-            <div className={`p-1.5 rounded-md ${
-              index === selectedIndex ? "bg-[var(--primary)] text-white" : "bg-[var(--bg-primary)] text-[var(--text-secondary)]"
-            }`}>
+            <div
+              className={`p-1.5 rounded-md ${
+                index === selectedIndex
+                  ? "bg-[var(--primary)] text-white"
+                  : "bg-[var(--bg-primary)] text-[var(--text-secondary)]"
+              }`}
+            >
               <FileText size={16} />
             </div>
             <div className="text-sm font-medium truncate">{item.title}</div>

@@ -46,7 +46,7 @@ describe("useEditorStore extended", () => {
     const store = useEditorStore.getState();
     store.toggleRightPanel();
     expect(useEditorStore.getState().rightPanelOpen).toBe(true);
-    
+
     useEditorStore.getState().toggleRightPanel();
     expect(useEditorStore.getState().rightPanelOpen).toBe(false);
   });
@@ -56,7 +56,7 @@ describe("useEditorStore extended", () => {
     store.toggleRightPanel("backlinks");
     expect(useEditorStore.getState().rightPanelOpen).toBe(true);
     expect(useEditorStore.getState().rightPanelView).toBe("backlinks");
-    
+
     useEditorStore.getState().toggleRightPanel("backlinks");
     expect(useEditorStore.getState().rightPanelOpen).toBe(false);
 

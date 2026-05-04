@@ -27,7 +27,7 @@ describe("useSearch", () => {
 
   it("should clear search when query is empty", () => {
     const { result } = renderHook(() => useSearch());
-    
+
     act(() => {
       result.current.search("   ");
     });
@@ -41,7 +41,7 @@ describe("useSearch", () => {
     vi.mocked(searchDocumentsFTS).mockResolvedValueOnce(mockResults);
 
     const { result } = renderHook(() => useSearch());
-    
+
     act(() => {
       result.current.search("test");
       result.current.search("test 2");

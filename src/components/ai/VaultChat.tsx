@@ -104,7 +104,9 @@ export function VaultChat() {
         {isLoading && (
           <div className="chat-message assistant">
             <span className="chat-role">AI</span>
-            <p className="chat-content" style={{ opacity: 0.5 }}>Thinking…</p>
+            <p className="chat-content" style={{ opacity: 0.5 }}>
+              Thinking…
+            </p>
           </div>
         )}
         <div ref={bottomRef} />
@@ -152,7 +154,7 @@ async function callProvider(provider: AIProvider, prompt: string): Promise<strin
       }),
     });
     if (!res.ok) throw new Error(`Anthropic API ${res.status}`);
-    const data = await res.json() as { content: { text: string }[] };
+    const data = (await res.json()) as { content: { text: string }[] };
     return data.content[0]?.text ?? "";
   }
 
@@ -176,6 +178,6 @@ async function callProvider(provider: AIProvider, prompt: string): Promise<strin
     }),
   });
   if (!res.ok) throw new Error(`LLM API ${res.status}`);
-  const data = await res.json() as { choices: { message: { content: string } }[] };
+  const data = (await res.json()) as { choices: { message: { content: string } }[] };
   return data.choices[0]?.message.content ?? "";
 }

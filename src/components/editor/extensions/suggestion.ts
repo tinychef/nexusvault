@@ -2,16 +2,16 @@ import { ReactRenderer } from "@tiptap/react";
 import tippy from "tippy.js";
 import { CommandList } from "./CommandList";
 import React from "react";
-import { 
-  Heading1, 
-  Heading2, 
-  Heading3, 
-  List, 
-  ListOrdered, 
-  CheckSquare, 
+import {
+  Heading1,
+  Heading2,
+  Heading3,
+  List,
+  ListOrdered,
+  CheckSquare,
   Code,
   Minus,
-  Table
+  Table,
 } from "lucide-react";
 
 export const getSuggestionItems = ({ query }: { query: string }) => {
@@ -85,10 +85,17 @@ export const getSuggestionItems = ({ query }: { query: string }) => {
       description: "Insert a table.",
       icon: React.createElement(Table, { size: 18 }),
       command: ({ editor, range }: any) => {
-        editor.chain().focus().deleteRange(range).insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+        editor
+          .chain()
+          .focus()
+          .deleteRange(range)
+          .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+          .run();
       },
     },
-  ].filter((item) => item.title.toLowerCase().startsWith(query.toLowerCase())).slice(0, 10);
+  ]
+    .filter((item) => item.title.toLowerCase().startsWith(query.toLowerCase()))
+    .slice(0, 10);
 };
 
 export const renderSuggestion = () => {

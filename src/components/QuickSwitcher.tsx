@@ -25,9 +25,7 @@ export function QuickSwitcher({ isOpen, onClose }: QuickSwitcherProps) {
 
   // Filter documents by title (instant, local)
   const titleMatches: VaultDocument[] = query.trim()
-    ? documents.filter((d) =>
-        d.title.toLowerCase().includes(query.toLowerCase())
-      )
+    ? documents.filter((d) => d.title.toLowerCase().includes(query.toLowerCase()))
     : documents.slice(0, 20); // Show recent docs when no query
 
   // Merge title matches + FTS results (deduplicated)
@@ -84,7 +82,7 @@ export function QuickSwitcher({ isOpen, onClose }: QuickSwitcherProps) {
       await openDocument(docId, title);
       onClose();
     },
-    [openDocument, onClose]
+    [openDocument, onClose],
   );
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

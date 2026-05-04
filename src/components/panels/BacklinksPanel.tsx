@@ -56,7 +56,9 @@ export function BacklinksPanel() {
     }
 
     loadBacklinks();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [activeDocId]);
 
   const handleOpen = async (entry: BacklinkEntry) => {

@@ -39,13 +39,18 @@ export function useAutoUpdate() {
         setState({ status: "available", version: update.version });
       } catch (err) {
         if (!cancelled) {
-          setState({ status: "error", message: err instanceof Error ? err.message : "Update check failed" });
+          setState({
+            status: "error",
+            message: err instanceof Error ? err.message : "Update check failed",
+          });
         }
       }
     }
 
     checkForUpdate();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const installUpdate = async () => {
@@ -61,14 +66,20 @@ export function useAutoUpdate() {
         if (event.event === "Progress" && event.data) {
           const d = event.data as { chunkLength: number; contentLength: number };
           if (d.contentLength > 0) {
-            setState({ status: "downloading", progress: Math.round((d.chunkLength / d.contentLength) * 100) });
+            setState({
+              status: "downloading",
+              progress: Math.round((d.chunkLength / d.contentLength) * 100),
+            });
           }
         }
       });
 
       setState({ status: "ready" });
     } catch (err) {
-      setState({ status: "error", message: err instanceof Error ? err.message : "Install failed" });
+      setState({
+        status: "error",
+        message: err instanceof Error ? err.message : "Install failed",
+      });
     }
   };
 

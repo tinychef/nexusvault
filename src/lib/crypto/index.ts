@@ -19,7 +19,7 @@ const MAC_BYTES = 16;
 /**
  * Derives a strong symmetric key from a user password and a vault-specific salt
  * using Argon2id, the current standard for password hashing.
- * 
+ *
  * @param password The user's master password
  * @param salt A 16-byte random salt unique to the vault
  * @returns A 32-byte symmetric key for XChaCha20-Poly1305
@@ -35,7 +35,7 @@ export function deriveKey(password: string, salt: Uint8Array): Uint8Array {
     salt,
     sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE,
     sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE,
-    sodium.crypto_pwhash_ALG_ARGON2ID13
+    sodium.crypto_pwhash_ALG_ARGON2ID13,
   );
 }
 
@@ -50,7 +50,7 @@ export function generateSalt(): Uint8Array {
 
 /**
  * Encrypts a payload (e.g., Loro CRDT snapshot) using XChaCha20-Poly1305.
- * 
+ *
  * @param payload The binary data to encrypt
  * @param key The 32-byte symmetric key (derived from password)
  * @returns A Uint8Array containing [24-byte nonce] + [ciphertext/mac]
@@ -63,21 +63,21 @@ export function encryptData(payload: Uint8Array, key: Uint8Array): Uint8Array {
   // Generate a random 24-byte nonce for XChaCha20
   const nonce = new Uint8Array(NONCE_BYTES);
   globalThis.crypto.getRandomValues(nonce);
-  
+
   // Encrypt payload
   const ciphertext = sodium.crypto_secretbox_easy(payload, nonce, key);
-  
+
   // Prepend nonce to ciphertext for storage
   const result = new Uint8Array(nonce.length + ciphertext.length);
   result.set(nonce, 0);
   result.set(ciphertext, nonce.length);
-  
+
   return result;
 }
 
 /**
  * Decrypts a payload encrypted with XChaCha20-Poly1305.
- * 
+ *
  * @param encryptedData The binary data containing [24-byte nonce] + [ciphertext/mac]
  * @param key The 32-byte symmetric key
  * @returns The original decrypted Uint8Array
@@ -97,6 +97,6 @@ export function decryptData(encryptedData: Uint8Array, key: Uint8Array): Uint8Ar
 
   // Decrypt payload
   const decrypted = sodium.crypto_secretbox_open_easy(ciphertext, nonce, key);
-  
+
   return decrypted;
 }

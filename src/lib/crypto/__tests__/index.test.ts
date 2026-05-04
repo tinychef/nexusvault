@@ -15,10 +15,10 @@ describe.skip("Crypto Utils (libsodium)", () => {
   it("should derive a key from a password and salt consistently", () => {
     const salt = generateSalt();
     const password = "my-super-secret-password-123";
-    
+
     const key1 = deriveKey(password, salt);
     const key2 = deriveKey(password, salt);
-    
+
     expect(key1).toBeInstanceOf(Uint8Array);
     expect(key1.length).toBe(32); // crypto_secretbox_KEYBYTES
     expect(key1).toEqual(key2); // Deterministic
@@ -28,10 +28,10 @@ describe.skip("Crypto Utils (libsodium)", () => {
     const password = "my-super-secret-password-123";
     const salt1 = generateSalt();
     const salt2 = generateSalt();
-    
+
     const key1 = deriveKey(password, salt1);
     const key2 = deriveKey(password, salt2);
-    
+
     expect(key1).not.toEqual(key2);
   });
 
@@ -39,18 +39,18 @@ describe.skip("Crypto Utils (libsodium)", () => {
     const password = "my-super-secret-password-123";
     const salt = generateSalt();
     const key = deriveKey(password, salt);
-    
+
     // Create some dummy binary data (e.g. Loro snapshot)
     const originalData = new Uint8Array([1, 2, 3, 4, 5, 255, 128, 0]);
-    
+
     const encrypted = encryptData(originalData, key);
-    
+
     // Encrypted data should be longer than original (nonce + mac)
     expect(encrypted.length).toBeGreaterThan(originalData.length);
     expect(encrypted).not.toEqual(originalData);
-    
+
     const decrypted = decryptData(encrypted, key);
-    
+
     expect(decrypted).toEqual(originalData);
   });
 
@@ -58,10 +58,10 @@ describe.skip("Crypto Utils (libsodium)", () => {
     const salt = generateSalt();
     const key1 = deriveKey("password-one", salt);
     const key2 = deriveKey("password-two", salt);
-    
+
     const originalData = new Uint8Array([1, 2, 3, 4, 5]);
     const encrypted = encryptData(originalData, key1);
-    
+
     expect(() => {
       decryptData(encrypted, key2);
     }).toThrow();
@@ -70,13 +70,13 @@ describe.skip("Crypto Utils (libsodium)", () => {
   it("should fail to decrypt corrupted data", () => {
     const salt = generateSalt();
     const key = deriveKey("password", salt);
-    
+
     const originalData = new Uint8Array([1, 2, 3, 4, 5]);
     const encrypted = encryptData(originalData, key);
-    
+
     // Corrupt one byte of the ciphertext
     encrypted[encrypted.length - 1] ^= 1;
-    
+
     expect(() => {
       decryptData(encrypted, key);
     }).toThrow();

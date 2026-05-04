@@ -79,14 +79,20 @@ export const CommandList = forwardRef((props: CommandListProps, ref) => {
             }`}
             onClick={() => selectItem(index)}
           >
-            <div className={`p-1.5 rounded-md ${
-              index === selectedIndex ? "bg-[var(--primary)] text-white" : "bg-[var(--bg-primary)] text-[var(--text-secondary)]"
-            }`}>
+            <div
+              className={`p-1.5 rounded-md ${
+                index === selectedIndex
+                  ? "bg-[var(--primary)] text-white"
+                  : "bg-[var(--bg-primary)] text-[var(--text-secondary)]"
+              }`}
+            >
               {item.icon}
             </div>
             <div>
               <div className="text-sm font-medium">{item.title}</div>
-              <div className={`text-xs ${index === selectedIndex ? "text-[var(--primary-light)] opacity-80" : "text-[var(--text-secondary)]"}`}>
+              <div
+                className={`text-xs ${index === selectedIndex ? "text-[var(--primary-light)] opacity-80" : "text-[var(--text-secondary)]"}`}
+              >
                 {item.description}
               </div>
             </div>

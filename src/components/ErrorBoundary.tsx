@@ -26,27 +26,32 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="empty-state" style={{ height: "100vh", backgroundColor: "var(--nv-bg-primary)" }}>
+        <div
+          className="empty-state"
+          style={{ height: "100vh", backgroundColor: "var(--nv-bg-primary)" }}
+        >
           <div className="empty-state-icon" style={{ color: "#fa5252", opacity: 1 }}>
             ⚠️
           </div>
           <h2>Application Error</h2>
           <p>Something went wrong. Check the console for details.</p>
-          <pre style={{ 
-            marginTop: "20px", 
-            padding: "16px", 
-            backgroundColor: "var(--nv-bg-secondary)", 
-            borderRadius: "6px",
-            color: "var(--nv-text-primary)",
-            fontSize: "12px",
-            maxWidth: "80%",
-            overflowX: "auto"
-          }}>
+          <pre
+            style={{
+              marginTop: "20px",
+              padding: "16px",
+              backgroundColor: "var(--nv-bg-secondary)",
+              borderRadius: "6px",
+              color: "var(--nv-text-primary)",
+              fontSize: "12px",
+              maxWidth: "80%",
+              overflowX: "auto",
+            }}
+          >
             {this.state.error?.message}
           </pre>
-          <button 
-            type="button" 
-            className="sidebar-footer-btn" 
+          <button
+            type="button"
+            className="sidebar-footer-btn"
             style={{ marginTop: "20px" }}
             onClick={() => window.location.reload()}
           >

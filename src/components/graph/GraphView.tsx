@@ -30,7 +30,7 @@ export function GraphView() {
         openDocument(node.id as string, node.name as string);
       }
     },
-    [openDocument]
+    [openDocument],
   );
 
   const paintNode = useCallback(
@@ -63,7 +63,7 @@ export function GraphView() {
       ctx.fillStyle = isActive ? "#c1c2c5" : "#909296";
       ctx.fillText(label, graphNode.x, graphNode.y + radius + 2);
     },
-    [activeDocId]
+    [activeDocId],
   );
 
   if (isLoading) {
@@ -75,11 +75,7 @@ export function GraphView() {
   }
 
   if (graphData.nodes.length === 0) {
-    return (
-      <div className="graph-empty">
-        No documents to display yet.
-      </div>
-    );
+    return <div className="graph-empty">No documents to display yet.</div>;
   }
 
   return (

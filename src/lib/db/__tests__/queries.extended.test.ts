@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { 
-  getDocumentById, 
-  getAllDocuments, 
-  updateDocumentMeta, 
+import {
+  getDocumentById,
+  getAllDocuments,
+  updateDocumentMeta,
   softDeleteDocument,
   insertLink,
   insertTag,
   getTagsForDocument,
   getDocumentsByTag,
-  insertDocument
+  insertDocument,
 } from "../queries";
 import { getDatabase } from "../schema";
 
@@ -36,7 +36,7 @@ describe("Extended DB Queries", () => {
     updated_at: 100,
     word_count: 5,
     loro_file: "test.loro",
-    is_deleted: 0
+    is_deleted: 0,
   };
 
   it("should insert a document", async () => {
@@ -48,12 +48,12 @@ describe("Extended DB Queries", () => {
       updatedAt: 100,
       wordCount: 5,
       loroFile: "test.loro",
-      isDeleted: false
+      isDeleted: false,
     });
-    
+
     expect(mockDb.execute).toHaveBeenCalledWith(
       expect.stringContaining("INSERT INTO documents"),
-      expect.arrayContaining(["1", "Test", 0])
+      expect.arrayContaining(["1", "Test", 0]),
     );
   });
 
@@ -82,19 +82,19 @@ describe("Extended DB Queries", () => {
 
   it("should update document metadata", async () => {
     await updateDocumentMeta("1", { title: "Updated", wordCount: 10 });
-    
+
     expect(mockDb.execute).toHaveBeenCalledWith(
       expect.stringContaining("UPDATE documents"),
-      expect.arrayContaining(["Updated", null, 10])
+      expect.arrayContaining(["Updated", null, 10]),
     );
   });
 
   it("should soft delete document", async () => {
     await softDeleteDocument("1");
-    
+
     expect(mockDb.execute).toHaveBeenCalledWith(
       expect.stringContaining("UPDATE documents SET is_deleted = 1"),
-      expect.arrayContaining(["1"])
+      expect.arrayContaining(["1"]),
     );
   });
 
@@ -102,7 +102,7 @@ describe("Extended DB Queries", () => {
     await insertLink("A", "B", "test");
     expect(mockDb.execute).toHaveBeenCalledWith(
       expect.stringContaining("INSERT OR IGNORE INTO links"),
-      ["A", "B", "test"]
+      ["A", "B", "test"],
     );
   });
 
@@ -110,20 +110,20 @@ describe("Extended DB Queries", () => {
     await insertTag("1", "test-tag");
     expect(mockDb.execute).toHaveBeenCalledWith(
       expect.stringContaining("INSERT OR IGNORE INTO tags"),
-      ["1", "test-tag"]
+      ["1", "test-tag"],
     );
   });
 
   it("should get tags for a document", async () => {
     vi.mocked(mockDb.select).mockResolvedValueOnce([{ tag: "tag1" }, { tag: "tag2" }]);
-    
+
     const tags = await getTagsForDocument("1");
     expect(tags).toEqual(["tag1", "tag2"]);
   });
 
   it("should get documents by tag", async () => {
     vi.mocked(mockDb.select).mockResolvedValueOnce([mockRawDoc]);
-    
+
     const docs = await getDocumentsByTag("tag1");
     expect(docs.length).toBe(1);
     expect(docs[0].id).toBe("1");

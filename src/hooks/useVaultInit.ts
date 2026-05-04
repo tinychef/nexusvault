@@ -18,14 +18,16 @@ export function useVaultInit() {
 
       try {
         // 1. Ensure `docs/` directory exists for Loro files
-        const docsDirExists = await exists("docs", { baseDir: BaseDirectory.AppLocalData });
+        const docsDirExists = await exists("docs", {
+          baseDir: BaseDirectory.AppLocalData,
+        });
         if (!docsDirExists) {
           await mkdir("docs", { baseDir: BaseDirectory.AppLocalData, recursive: true });
         }
 
         // 2. Load documents from SQLite
         const docs = await getAllDocuments();
-        
+
         if (mounted) {
           setDocuments(docs);
           setIsInitialized(true);

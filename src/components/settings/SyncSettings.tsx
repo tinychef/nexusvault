@@ -44,7 +44,9 @@ export function SyncSettings() {
       </div>
 
       <div className="settings-field">
-        <label className="settings-label" htmlFor="sync-url">Sync server URL</label>
+        <label className="settings-label" htmlFor="sync-url">
+          Sync server URL
+        </label>
         <input
           id="sync-url"
           type="url"

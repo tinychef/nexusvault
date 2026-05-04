@@ -19,10 +19,12 @@ function parseFrontMatter(md: string): { tags: string[]; body: string } {
   const yaml = fmMatch[1];
   const body = fmMatch[2];
 
-  const tagLine =
-    yaml.match(/^tags:\s*\[([^\]]+)\]/m) ?? yaml.match(/^tags:\s*(.+)/m);
+  const tagLine = yaml.match(/^tags:\s*\[([^\]]+)\]/m) ?? yaml.match(/^tags:\s*(.+)/m);
   const tags = tagLine
-    ? tagLine[1].split(/[,\s]+/).map((t) => t.trim().replace(/^#/, "")).filter(Boolean)
+    ? tagLine[1]
+        .split(/[,\s]+/)
+        .map((t) => t.trim().replace(/^#/, ""))
+        .filter(Boolean)
     : [];
 
   return { tags, body };
@@ -41,11 +43,23 @@ function mdToTipTapJSON(md: string): object {
 
   for (const line of lines) {
     if (line.startsWith("### ")) {
-      content.push({ type: "heading", attrs: { level: 3 }, content: [{ type: "text", text: line.slice(4) }] });
+      content.push({
+        type: "heading",
+        attrs: { level: 3 },
+        content: [{ type: "text", text: line.slice(4) }],
+      });
     } else if (line.startsWith("## ")) {
-      content.push({ type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: line.slice(3) }] });
+      content.push({
+        type: "heading",
+        attrs: { level: 2 },
+        content: [{ type: "text", text: line.slice(3) }],
+      });
     } else if (line.startsWith("# ")) {
-      content.push({ type: "heading", attrs: { level: 1 }, content: [{ type: "text", text: line.slice(2) }] });
+      content.push({
+        type: "heading",
+        attrs: { level: 1 },
+        content: [{ type: "text", text: line.slice(2) }],
+      });
     } else {
       const text = line
         .replace(/\*\*(.+?)\*\*/g, "$1")

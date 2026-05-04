@@ -35,7 +35,7 @@ describe("useEditorStore", () => {
     store.openTab("doc-1", "Doc 1");
     store.openTab("doc-2", "Doc 2");
     store.closeTab("doc-1");
-    
+
     const state = useEditorStore.getState();
     expect(state.tabs.length).toBe(1);
     expect(state.tabs[0].docId).toBe("doc-2");
@@ -47,7 +47,7 @@ describe("useEditorStore", () => {
     const store = useEditorStore.getState();
     store.openTab("doc-1", "Doc 1");
     store.markTabDirty("doc-1", true);
-    
+
     expect(useEditorStore.getState().tabs[0].isDirty).toBe(true);
   });
 
@@ -88,7 +88,7 @@ describe("useEditorStore", () => {
     const store = useEditorStore.getState();
     store.toggleRightPanel();
     expect(useEditorStore.getState().rightPanelOpen).toBe(true);
-    
+
     useEditorStore.getState().toggleRightPanel();
     expect(useEditorStore.getState().rightPanelOpen).toBe(false);
   });
@@ -98,7 +98,7 @@ describe("useEditorStore", () => {
     store.toggleRightPanel("backlinks");
     expect(useEditorStore.getState().rightPanelOpen).toBe(true);
     expect(useEditorStore.getState().rightPanelView).toBe("backlinks");
-    
+
     useEditorStore.getState().toggleRightPanel("backlinks");
     expect(useEditorStore.getState().rightPanelOpen).toBe(false);
 
