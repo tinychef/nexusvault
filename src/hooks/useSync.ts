@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { useSyncStore } from "@/stores/sync";
-import { syncEngine } from "@/lib/sync-engine";
+import { useSettingsStore } from "@/stores/settings";
+import { SyncEngine } from "@/lib/sync-engine";
 import { getAllDocuments, insertDocument, updateDocumentMeta } from "@/lib/db/queries";
 import { readFile, writeFile } from "@tauri-apps/plugin-fs";
 import { BaseDirectory } from "@tauri-apps/api/path";
@@ -8,16 +9,19 @@ import { LoroDoc } from "loro-crdt";
 
 export function useSync() {
   const { setStatus, setLastSynced, setError, setPendingChanges } = useSyncStore();
+  const { syncUrl } = useSettingsStore();
 
   const syncAll = useCallback(
     async (vaultId: string, encryptionKey: Uint8Array) => {
       setStatus("syncing");
       setError(null);
 
+      const engine = new SyncEngine(vaultId, encryptionKey, syncUrl);
+
       try {
         // 1. Get local and remote indices
         const localDocs = await getAllDocuments();
-        const remoteDocs = await syncEngine.getVaultIndex(vaultId);
+        const remoteDocs = await engine.getVaultIndex();
 
         const remoteMap = new Map(remoteDocs.map((d) => [d.doc_id, d]));
         const localMap = new Map(localDocs.map((d) => [d.id, d]));
@@ -27,16 +31,10 @@ export function useSync() {
           const local = localMap.get(remote.doc_id);
 
           if (!local || remote.last_modified > local.updatedAt) {
-            const decryptedBinary = await syncEngine.pullDocument(
-              vaultId,
-              remote.doc_id,
-              encryptionKey,
-            );
-
+            const decryptedBinary = await engine.pullDocument(remote.doc_id);
             const path = `docs/${remote.doc_id}.loro`;
 
             if (local) {
-              // Merge with local changes if it exists
               const localBytes = await readFile(path, {
                 baseDir: BaseDirectory.AppLocalData,
               });
@@ -45,14 +43,12 @@ export function useSync() {
               doc.import(decryptedBinary);
               const merged = doc.export({ mode: "snapshot" });
               await writeFile(path, merged, { baseDir: BaseDirectory.AppLocalData });
-
               await updateDocumentMeta(remote.doc_id, {
                 title: remote.title,
                 wordCount: remote.word_count,
                 updatedAt: remote.last_modified,
               });
             } else {
-              // New document from remote
               await writeFile(path, decryptedBinary, {
                 baseDir: BaseDirectory.AppLocalData,
               });
@@ -78,18 +74,11 @@ export function useSync() {
             const localBytes = await readFile(`docs/${local.id}.loro`, {
               baseDir: BaseDirectory.AppLocalData,
             });
-
-            await syncEngine.pushDocument(
-              vaultId,
-              local.id,
-              localBytes,
-              {
-                title: local.title,
-                lastModified: local.updatedAt,
-                wordCount: local.wordCount,
-              },
-              encryptionKey,
-            );
+            await engine.pushDocument(local.id, localBytes, {
+              title: local.title,
+              lastModified: local.updatedAt,
+              wordCount: local.wordCount,
+            });
           }
         }
 
@@ -98,12 +87,11 @@ export function useSync() {
         setStatus("idle");
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
-        console.error("Sync error:", err);
         setError(message);
         setStatus("error");
       }
     },
-    [setStatus, setLastSynced, setError, setPendingChanges],
+    [setStatus, setLastSynced, setError, setPendingChanges, syncUrl],
   );
 
   return { syncAll };

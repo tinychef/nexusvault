@@ -40,8 +40,8 @@ export function AISettings() {
     setTestStatus("idle");
   };
 
-  const handleSave = () => {
-    setAIProvider({ name: provider, apiKey, model, baseUrl: baseUrl || undefined });
+  const handleSave = async () => {
+    await setAIProvider({ name: provider, apiKey, model, baseUrl: baseUrl || undefined });
     setTestStatus("idle");
   };
 

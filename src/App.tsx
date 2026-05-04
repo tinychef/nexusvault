@@ -4,6 +4,7 @@ import { useVaultInit } from "@hooks/useVaultInit";
 import { useVaultStore } from "@stores/vault";
 import { useSettingsStore, applyTheme } from "@stores/settings";
 
+
 /**
  * Application root.
  * Wraps the layout in any global providers needed in future phases
@@ -12,12 +13,17 @@ import { useSettingsStore, applyTheme } from "@stores/settings";
 function App() {
   const { isInitialized } = useVaultInit();
   const { error } = useVaultStore();
-  const { theme } = useSettingsStore();
+  const { theme, loadAIProviderKey } = useSettingsStore();
 
   // Apply theme on mount and whenever preference changes
   useEffect(() => {
     applyTheme(theme);
   }, [theme]);
+
+  // Load API key from OS keychain on startup
+  useEffect(() => {
+    loadAIProviderKey();
+  }, [loadAIProviderKey]);
 
   if (error) {
     return (

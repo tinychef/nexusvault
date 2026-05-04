@@ -200,6 +200,30 @@ export async function getAllUniqueTags(): Promise<string[]> {
   return rows.map((r) => r.tag);
 }
 
+/**
+ * Returns a plain-text snippet for a document from the FTS5 index.
+ * Falls back to the document title when no FTS content has been indexed yet.
+ */
+export async function getDocumentSnippet(docId: string): Promise<string> {
+  const db = await getDatabase();
+  const rows = await db.select<{ snippet: string }[]>(
+    `SELECT snippet(documents_fts, 1, '', '', '…', 30) AS snippet
+     FROM documents_fts
+     JOIN documents d ON d.rowid = documents_fts.rowid
+     WHERE d.id = $1
+     LIMIT 1`,
+    [docId],
+  );
+  if (rows.length > 0 && rows[0].snippet.trim()) {
+    return rows[0].snippet;
+  }
+  const titleRows = await db.select<{ title: string }[]>(
+    `SELECT title FROM documents WHERE id = $1 LIMIT 1`,
+    [docId],
+  );
+  return titleRows[0]?.title ?? "";
+}
+
 // ── Internal helpers ─────────────────────────────────────────────────────────
 
 /** Raw row shape returned by SQLite (snake_case, integers for booleans) */

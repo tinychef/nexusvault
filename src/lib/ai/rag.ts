@@ -1,5 +1,5 @@
 import { searchSemantic } from "./embeddings";
-import { getDocumentById } from "@lib/db/queries";
+import { getDocumentSnippet } from "@lib/db/queries";
 
 export interface RAGResult {
   docId: string;
@@ -8,30 +8,8 @@ export interface RAGResult {
   score: number;
 }
 
-const SNIPPET_LENGTH = 400;
-
-/** Extracts a plain-text snippet from a JSON TipTap document, limited to SNIPPET_LENGTH chars. */
-function extractSnippet(contentJson: unknown): string {
-  try {
-    const doc = typeof contentJson === "string" ? JSON.parse(contentJson) : contentJson;
-    const texts: string[] = [];
-    function walk(node: Record<string, unknown>) {
-      if (node.type === "text" && typeof node.text === "string") {
-        texts.push(node.text);
-      }
-      if (Array.isArray(node.content)) {
-        (node.content as Record<string, unknown>[]).forEach(walk);
-      }
-    }
-    walk(doc as Record<string, unknown>);
-    return texts.join(" ").slice(0, SNIPPET_LENGTH);
-  } catch {
-    return "";
-  }
-}
-
 /**
- * RAG search: semantic embedding lookup + metadata fetch.
+ * RAG search: semantic embedding lookup + FTS5 snippet fetch.
  * Returns top-K document snippets relevant to the query.
  */
 export async function ragSearch(query: string, topK = 5): Promise<RAGResult[]> {
@@ -39,12 +17,11 @@ export async function ragSearch(query: string, topK = 5): Promise<RAGResult[]> {
 
   const results: RAGResult[] = [];
   for (const hit of hits) {
-    const doc = await getDocumentById(hit.docId);
-    if (!doc) continue;
+    const snippet = await getDocumentSnippet(hit.docId);
     results.push({
       docId: hit.docId,
       title: hit.title,
-      snippet: extractSnippet(null),
+      snippet,
       score: hit.score,
     });
   }
