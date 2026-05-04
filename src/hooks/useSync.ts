@@ -26,7 +26,6 @@ export function useSync() {
         const local = localMap.get(remote.doc_id);
         
         if (!local || remote.last_modified > local.updatedAt) {
-          console.log(`Pulling document: ${remote.doc_id}`);
           const decryptedBinary = await syncEngine.pullDocument(vaultId, remote.doc_id, encryptionKey);
           
           const path = `docs/${remote.doc_id}.loro`;
@@ -67,7 +66,6 @@ export function useSync() {
         const remote = remoteMap.get(local.id);
         
         if (!remote || local.updatedAt > remote.last_modified) {
-          console.log(`Pushing document: ${local.id}`);
           const localBytes = await readFile(`docs/${local.id}.loro`, { baseDir: BaseDirectory.AppLocalData });
           
           await syncEngine.pushDocument(
@@ -87,9 +85,10 @@ export function useSync() {
       setLastSynced(Date.now());
       setPendingChanges(0);
       setStatus("idle");
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
       console.error("Sync error:", err);
-      setError(err.message || "An unknown error occurred during sync");
+      setError(message);
       setStatus("error");
     }
   }, [setStatus, setLastSynced, setError, setPendingChanges]);

@@ -3,6 +3,7 @@ import tseslint from "@typescript-eslint/eslint-plugin";
 import tsparser from "@typescript-eslint/parser";
 import reactHooks from "eslint-plugin-react-hooks";
 import prettier from "eslint-config-prettier";
+import globals from "globals";
 
 export default [
   js.configs.recommended,
@@ -15,31 +16,12 @@ export default [
         ecmaVersion: "latest",
         sourceType: "module",
         ecmaFeatures: { jsx: true },
+        jsxPragma: null,
       },
       globals: {
-        console: "readonly",
-        document: "readonly",
-        window: "readonly",
-        setTimeout: "readonly",
-        clearTimeout: "readonly",
-        setInterval: "readonly",
-        clearInterval: "readonly",
-        fetch: "readonly",
-        URL: "readonly",
-        Response: "readonly",
-        Request: "readonly",
-        Headers: "readonly",
-        AbortController: "readonly",
-        crypto: "readonly",
-        TextEncoder: "readonly",
-        TextDecoder: "readonly",
-        Uint8Array: "readonly",
-        ArrayBuffer: "readonly",
-        Promise: "readonly",
-        Map: "readonly",
-        Set: "readonly",
-        WeakMap: "readonly",
-        WeakSet: "readonly",
+        ...globals.browser,
+        ...globals.es2021,
+        React: "readonly",
       },
     },
     plugins: {
@@ -49,11 +31,11 @@ export default [
     rules: {
       ...tseslint.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
-      "@typescript-eslint/no-unused-vars": [
-        "warn",
-        { argsIgnorePattern: "^_" },
-      ],
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
       "@typescript-eslint/no-explicit-any": "warn",
+      "react-hooks/exhaustive-deps": "warn",
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/set-state-in-effect": "warn",
       "no-unused-vars": "off",
     },
   },

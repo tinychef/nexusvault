@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import { AppLayout } from "@components/layout/AppLayout";
 import { useVaultInit } from "@hooks/useVaultInit";
 import { useVaultStore } from "@stores/vault";
+import { useSettingsStore, applyTheme } from "@stores/settings";
 
 /**
  * Application root.
@@ -10,6 +12,12 @@ import { useVaultStore } from "@stores/vault";
 function App() {
   const { isInitialized } = useVaultInit();
   const { error } = useVaultStore();
+  const { theme } = useSettingsStore();
+
+  // Apply theme on mount and whenever preference changes
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
 
   if (error) {
     return (

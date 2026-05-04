@@ -2,103 +2,112 @@ import { Hono } from "hono";
 import { bearerAuth } from "hono/bearer-auth";
 
 type Bindings = {
-  VAULT_STORAGE: R2Bucket;
+  VAULT_STORAGE?: R2Bucket;  // optional until R2 is enabled in dashboard
   DB: D1Database;
-  SYNC_SECRET_KEY: string;
+  SYNC_STATE: KVNamespace;
+  SYNC_SECRET_KEY?: string;
+  ENVIRONMENT?: string;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-// Simple Bearer token authentication middleware for all /sync routes
 app.use("/sync/*", async (c, next) => {
   const token = c.env.SYNC_SECRET_KEY || "development-token-123";
   const auth = bearerAuth({ token });
   return auth(c, next);
 });
 
-// Health check
 app.get("/health", (c) => {
   return c.json({
     service: "NexusVault Sync",
-    version: "0.2.0",
+    version: "0.3.0",
     status: "operational",
-    phase: "Phase 2 (Hono + D1 + R2)",
+    storage: c.env.VAULT_STORAGE ? "r2" : "d1-fallback",
+    environment: c.env.ENVIRONMENT || "production",
   });
 });
 
-// Initialize DB tables if they don't exist
 app.post("/sync/init", async (c) => {
   await c.env.DB.exec(`
     CREATE TABLE IF NOT EXISTS metadata (
-      vault_id TEXT,
-      doc_id TEXT,
-      title TEXT,
+      vault_id      TEXT,
+      doc_id        TEXT,
+      title         TEXT,
       last_modified INTEGER,
-      word_count INTEGER,
+      word_count    INTEGER,
+      PRIMARY KEY (vault_id, doc_id)
+    );
+    CREATE TABLE IF NOT EXISTS blobs (
+      vault_id  TEXT,
+      doc_id    TEXT,
+      data      TEXT,
       PRIMARY KEY (vault_id, doc_id)
     );
   `);
   return c.json({ success: true });
 });
 
-// Get the index of a vault (all documents and their last modified time)
 app.get("/sync/vault/:vaultId/index", async (c) => {
   const vaultId = c.req.param("vaultId");
-  
   const { results } = await c.env.DB.prepare(
-    "SELECT doc_id, title, last_modified, word_count FROM metadata WHERE vault_id = ?"
+    "SELECT doc_id, title, last_modified, word_count FROM metadata WHERE vault_id = ?",
   ).bind(vaultId).all();
-
   return c.json({ documents: results });
 });
 
-// Pull document snapshot from R2
 app.get("/sync/vault/:vaultId/doc/:docId", async (c) => {
   const vaultId = c.req.param("vaultId");
   const docId = c.req.param("docId");
-
   const objectPath = `${vaultId}/${docId}.loro`;
-  const object = await c.env.VAULT_STORAGE.get(objectPath);
 
-  if (!object) {
-    return c.json({ error: "Document not found" }, 404);
+  // Use R2 when available, fall back to D1 blob storage
+  if (c.env.VAULT_STORAGE) {
+    const object = await c.env.VAULT_STORAGE.get(objectPath);
+    if (!object) return c.json({ error: "Document not found" }, 404);
+    const headers = new Headers();
+    object.writeHttpMetadata(headers);
+    headers.set("etag", object.httpEtag);
+    return new Response(object.body, { headers });
   }
 
-  const headers = new Headers();
-  object.writeHttpMetadata(headers);
-  headers.set("etag", object.httpEtag);
+  const row = await c.env.DB.prepare(
+    "SELECT data FROM blobs WHERE vault_id = ? AND doc_id = ?",
+  ).bind(vaultId, docId).first<{ data: string }>();
+  if (!row) return c.json({ error: "Document not found" }, 404);
 
-  return new Response(object.body, { headers });
+  const bytes = Uint8Array.from(atob(row.data), (c) => c.charCodeAt(0));
+  return new Response(bytes, { headers: { "content-type": "application/octet-stream" } });
 });
 
-// Push document snapshot to R2 and update D1 metadata
 app.post("/sync/vault/:vaultId/doc/:docId", async (c) => {
   const vaultId = c.req.param("vaultId");
   const docId = c.req.param("docId");
-  
   const body = await c.req.arrayBuffer();
-  
-  // Custom headers from client containing metadata
   const title = c.req.header("X-Doc-Title") || "Untitled";
-  const lastModified = parseInt(c.req.header("X-Doc-Modified") || Date.now().toString());
+  const lastModified = parseInt(c.req.header("X-Doc-Modified") || String(Date.now()));
   const wordCount = parseInt(c.req.header("X-Doc-WordCount") || "0");
 
-  const objectPath = `${vaultId}/${docId}.loro`;
-  
-  // 1. Save binary Loro CRDT snapshot to R2
-  await c.env.VAULT_STORAGE.put(objectPath, body, {
-    customMetadata: { title, lastModified: lastModified.toString() }
-  });
+  if (c.env.VAULT_STORAGE) {
+    await c.env.VAULT_STORAGE.put(`${vaultId}/${docId}.loro`, body, {
+      customMetadata: { title, lastModified: String(lastModified) },
+    });
+  } else {
+    // Store in D1 as base64 when R2 is unavailable
+    const b64 = btoa(String.fromCharCode(...new Uint8Array(body)));
+    await c.env.DB.prepare(
+      `INSERT INTO blobs (vault_id, doc_id, data) VALUES (?, ?, ?)
+       ON CONFLICT(vault_id, doc_id) DO UPDATE SET data = excluded.data`,
+    ).bind(vaultId, docId, b64).run();
+  }
 
-  // 2. Update D1 Index
-  await c.env.DB.prepare(`
-    INSERT INTO metadata (vault_id, doc_id, title, last_modified, word_count)
-    VALUES (?, ?, ?, ?, ?)
-    ON CONFLICT(vault_id, doc_id) DO UPDATE SET
-      title = excluded.title,
-      last_modified = excluded.last_modified,
-      word_count = excluded.word_count
-  `).bind(vaultId, docId, title, lastModified, wordCount).run();
+  await c.env.DB.prepare(
+    `INSERT INTO metadata (vault_id, doc_id, title, last_modified, word_count)
+     VALUES (?, ?, ?, ?, ?)
+     ON CONFLICT(vault_id, doc_id) DO UPDATE SET
+       title = excluded.title,
+       last_modified = excluded.last_modified,
+       word_count = excluded.word_count`,
+  ).bind(vaultId, docId, title, lastModified, wordCount).run();
 
   return c.json({ success: true, timestamp: Date.now() });
 });

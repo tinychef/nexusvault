@@ -6,7 +6,9 @@ import { Sidebar } from "@components/sidebar/Sidebar";
 import { Editor } from "@components/editor/Editor";
 import { QuickSwitcher } from "@components/QuickSwitcher";
 import { StatusBar } from "./StatusBar";
-import { PanelLeft, Link2 } from "lucide-react";
+import { TabBar } from "./TabBar";
+import { PanelLeft, Link2, Network, Bot } from "lucide-react";
+import { useKeyboardShortcuts } from "@hooks/useKeyboardShortcuts";
 import type { LoroDoc } from "loro-crdt";
 
 /** Placeholder shown when no document is open */
@@ -22,6 +24,7 @@ function EmptyState() {
 
 import { BacklinksPanel } from "@components/panels/BacklinksPanel";
 import { GraphView } from "@components/graph/GraphView";
+import { VaultChat } from "@components/ai/VaultChat";
 
 /** Right panel: renders the active panel view (backlinks, graph, ai) */
 function RightPanel() {
@@ -39,9 +42,7 @@ function RightPanel() {
       <div className="right-panel-body">
         {rightPanelView === "backlinks" && <BacklinksPanel />}
         {rightPanelView === "graph" && <GraphView />}
-        {rightPanelView === "ai" && (
-          <p className="panel-placeholder">AI assistant coming in Phase 5.</p>
-        )}
+        {rightPanelView === "ai" && <VaultChat />}
       </div>
     </aside>
   );
@@ -61,18 +62,11 @@ export function AppLayout() {
   const [isDocLoading, setIsDocLoading] = useState(false);
   const [quickSwitcherOpen, setQuickSwitcherOpen] = useState(false);
 
-  // Global keyboard shortcut: Cmd/Ctrl + P
-  const handleGlobalKeyDown = useCallback((e: KeyboardEvent) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === "p") {
-      e.preventDefault();
-      setQuickSwitcherOpen((prev) => !prev);
-    }
+  const toggleQuickSwitcher = useCallback(() => {
+    setQuickSwitcherOpen((prev) => !prev);
   }, []);
 
-  useEffect(() => {
-    window.addEventListener("keydown", handleGlobalKeyDown);
-    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
-  }, [handleGlobalKeyDown]);
+  useKeyboardShortcuts({ onQuickSwitcher: toggleQuickSwitcher });
 
   const activeDoc = documents.find((d) => d.id === activeTabId) ?? null;
 
@@ -132,6 +126,7 @@ export function AppLayout() {
 
       {/* Main editor area */}
       <main className="editor-area" role="main">
+        <TabBar />
         {isDocLoading ? (
           <div className="empty-state">
             <div className="empty-state-icon spin">⟳</div>
@@ -144,17 +139,42 @@ export function AppLayout() {
         )}
       </main>
 
-      {/* Right panel toggle */}
-      <button
-        type="button"
-        className="right-panel-toggle"
-        onClick={() => toggleRightPanel("backlinks")}
-        title="Toggle backlinks panel"
-        aria-label="Toggle backlinks"
-        id="btn-toggle-right-panel"
-      >
-        <Link2 size={18} />
-      </button>
+      {/* Right panel toggles: backlinks / graph / AI */}
+      <div style={{ position: "fixed", top: 8, right: 8, display: "flex", gap: 4, zIndex: 10 }}>
+        <button
+          type="button"
+          className="right-panel-toggle"
+          style={{ position: "static" }}
+          onClick={() => toggleRightPanel("backlinks")}
+          title="Toggle backlinks panel"
+          aria-label="Toggle backlinks"
+          id="btn-toggle-right-panel"
+        >
+          <Link2 size={18} />
+        </button>
+        <button
+          type="button"
+          className="right-panel-toggle"
+          style={{ position: "static" }}
+          onClick={() => toggleRightPanel("graph")}
+          title="Toggle graph view"
+          aria-label="Toggle graph view"
+          id="btn-toggle-graph"
+        >
+          <Network size={18} />
+        </button>
+        <button
+          type="button"
+          className="right-panel-toggle"
+          style={{ position: "static" }}
+          onClick={() => toggleRightPanel("ai")}
+          title="Toggle AI assistant"
+          aria-label="Toggle AI assistant"
+          id="btn-toggle-ai"
+        >
+          <Bot size={18} />
+        </button>
+      </div>
 
       {/* Right panel */}
       {rightPanelOpen && <RightPanel />}

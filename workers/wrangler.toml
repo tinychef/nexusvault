@@ -2,11 +2,24 @@ name = "nexusvault-sync"
 main = "src/index.ts"
 compatibility_date = "2025-01-01"
 
-[[r2_buckets]]
-binding = "VAULT_STORAGE"
-bucket_name = "nexusvault-vaults"
+# R2 bucket for encrypted vault blobs
+# PENDING: Enable R2 in Cloudflare Dashboard → Storage & Databases → R2, then:
+#   wrangler r2 bucket create nexusvault-vaults
+#   Uncomment the block below and redeploy.
+# [[r2_buckets]]
+# binding = "VAULT_STORAGE"
+# bucket_name = "nexusvault-vaults"
 
+# D1 database for document metadata index
 [[d1_databases]]
 binding = "DB"
 database_name = "nexusvault-metadata"
-database_id = "default-local-d1-id"
+database_id = "d9702343-b3fb-4e5b-a07d-abd8ce5de9f2"
+
+# KV namespace for sync state
+[[kv_namespaces]]
+binding = "SYNC_STATE"
+id = "a6d927238c224dc49da618b75b01c8b3"
+
+[vars]
+ENVIRONMENT = "production"

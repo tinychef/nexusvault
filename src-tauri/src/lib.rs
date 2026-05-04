@@ -1,3 +1,5 @@
+mod commands;
+
 use tauri_plugin_sql::{Migration, MigrationKind};
 
 /// Initializes and runs the NexusVault Tauri application.
