@@ -1,5 +1,6 @@
 mod commands;
 
+use commands::{document, vault};
 use tauri_plugin_sql::{Migration, MigrationKind};
 
 /// Initializes and runs the NexusVault Tauri application.
@@ -34,6 +35,13 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
+        .invoke_handler(tauri::generate_handler![
+            vault::get_vault_info,
+            vault::open_vault,
+            document::create_document,
+            document::list_documents,
+            document::delete_document,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running NexusVault");
 }
