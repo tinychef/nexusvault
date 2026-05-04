@@ -41,3 +41,6 @@ npm-debug.log*
 *.db
 *.db-journal
 *.db-wal
+
+# Tauri signing keys (secrets — never commit)
+keys/
