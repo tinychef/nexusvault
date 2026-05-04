@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSettingsStore } from "@stores/settings";
 import { useSyncStore } from "@stores/sync";
 
@@ -11,12 +11,20 @@ export function SyncSettings() {
 
   const [url, setUrl] = useState(syncUrl);
   const [saved, setSaved] = useState(false);
+  const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleSave = () => {
     setSyncUrl(url);
     setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    if (savedTimer.current) clearTimeout(savedTimer.current);
+    savedTimer.current = setTimeout(() => setSaved(false), 2000);
   };
+
+  useEffect(() => {
+    return () => {
+      if (savedTimer.current) clearTimeout(savedTimer.current);
+    };
+  }, []);
 
   const formatDate = (ts: number | null) => {
     if (!ts) return "Never";

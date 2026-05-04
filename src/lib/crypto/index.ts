@@ -29,6 +29,12 @@ export function deriveKey(password: string, salt: Uint8Array): Uint8Array {
     throw new Error(`Salt must be exactly ${SALT_BYTES} bytes.`);
   }
 
+  if (typeof sodium.crypto_pwhash !== "function") {
+    throw new Error(
+      "Argon2id KDF is unavailable in the current libsodium build. Install an Argon2id-capable build such as libsodium-wrappers-sumo.",
+    );
+  }
+
   return sodium.crypto_pwhash(
     KEY_BYTES,
     password,

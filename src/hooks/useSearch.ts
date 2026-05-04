@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { searchDocumentsFTS } from "@lib/db/queries";
 import type { SearchResult } from "@/types";
 
@@ -53,6 +53,14 @@ export function useSearch() {
     setResults([]);
     setIsSearching(false);
     setError(null);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
   }, []);
 
   return { search, clearSearch, results, isSearching, error };

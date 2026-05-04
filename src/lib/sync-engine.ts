@@ -1,7 +1,14 @@
 import { encryptData, decryptData } from "./crypto";
 
 const WORKER_URL = import.meta.env.VITE_SYNC_WORKER_URL || "http://localhost:8787";
-const SYNC_TOKEN = import.meta.env.VITE_SYNC_TOKEN || "development-token-123";
+
+function getSyncToken(): string {
+  const token = import.meta.env.VITE_SYNC_TOKEN;
+  if (!token) {
+    throw new Error("VITE_SYNC_TOKEN is not configured");
+  }
+  return token;
+}
 
 export interface RemoteDocMetadata {
   doc_id: string;
@@ -21,7 +28,7 @@ export const syncEngine = {
   async getVaultIndex(vaultId: string): Promise<RemoteDocMetadata[]> {
     const response = await fetch(`${WORKER_URL}/sync/vault/${vaultId}/index`, {
       headers: {
-        Authorization: `Bearer ${SYNC_TOKEN}`,
+        Authorization: `Bearer ${getSyncToken()}`,
       },
     });
 
@@ -50,7 +57,7 @@ export const syncEngine = {
     const response = await fetch(`${WORKER_URL}/sync/vault/${vaultId}/doc/${docId}`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${SYNC_TOKEN}`,
+        Authorization: `Bearer ${getSyncToken()}`,
         "Content-Type": "application/octet-stream",
         "X-Doc-Title": metadata.title,
         "X-Doc-Modified": metadata.lastModified.toString(),
@@ -77,7 +84,7 @@ export const syncEngine = {
   ): Promise<Uint8Array> {
     const response = await fetch(`${WORKER_URL}/sync/vault/${vaultId}/doc/${docId}`, {
       headers: {
-        Authorization: `Bearer ${SYNC_TOKEN}`,
+        Authorization: `Bearer ${getSyncToken()}`,
       },
     });
 
