@@ -6,10 +6,12 @@ interface VaultState {
   documents: VaultDocument[];
   activeDocId: string | null;
   vaultConfig: VaultConfig | null;
+  encryptionKey: Uint8Array | null;
   isLoading: boolean;
   error: string | null;
 
   // ── Actions ───────────────────────────────────────────────────────────────
+  setEncryptionKey: (key: Uint8Array | null) => void;
   /** Replace the full document list (used on initial vault load) */
   setDocuments: (docs: VaultDocument[]) => void;
   /** Set the currently focused document ID */
@@ -36,8 +38,11 @@ export const useVaultStore = create<VaultState>((set) => ({
   documents: [],
   activeDocId: null,
   vaultConfig: null,
+  encryptionKey: null,
   isLoading: false,
   error: null,
+
+  setEncryptionKey: (encryptionKey) => set({ encryptionKey }),
 
   setDocuments: (documents) => set({ documents }),
 

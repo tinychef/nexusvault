@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useEditorStore } from "@stores/editor";
 import { useVaultStore } from "@stores/vault";
 import { useDocument } from "@hooks/useDocument";
 import { Sidebar } from "@components/sidebar/Sidebar";
 import { Editor } from "@components/editor/Editor";
+import { QuickSwitcher } from "@components/QuickSwitcher";
 import { StatusBar } from "./StatusBar";
 import { PanelLeft, Link2 } from "lucide-react";
 import type { LoroDoc } from "loro-crdt";
@@ -19,7 +20,10 @@ function EmptyState() {
   );
 }
 
-/** Placeholder for the right panel (backlinks / graph / AI) */
+import { BacklinksPanel } from "@components/panels/BacklinksPanel";
+import { GraphView } from "@components/graph/GraphView";
+
+/** Right panel: renders the active panel view (backlinks, graph, ai) */
 function RightPanel() {
   const { rightPanelView } = useEditorStore();
   const labels: Record<string, string> = {
@@ -33,11 +37,11 @@ function RightPanel() {
         <span>{rightPanelView ? labels[rightPanelView] : "Panel"}</span>
       </div>
       <div className="right-panel-body">
-        <p className="panel-placeholder">
-          {rightPanelView === "backlinks" && "No backlinks yet."}
-          {rightPanelView === "graph" && "Graph view coming in Phase 2."}
-          {rightPanelView === "ai" && "AI assistant coming in Phase 4."}
-        </p>
+        {rightPanelView === "backlinks" && <BacklinksPanel />}
+        {rightPanelView === "graph" && <GraphView />}
+        {rightPanelView === "ai" && (
+          <p className="panel-placeholder">AI assistant coming in Phase 5.</p>
+        )}
       </div>
     </aside>
   );
@@ -55,6 +59,20 @@ export function AppLayout() {
 
   const [loroDoc, setLoroDoc] = useState<LoroDoc | null>(null);
   const [isDocLoading, setIsDocLoading] = useState(false);
+  const [quickSwitcherOpen, setQuickSwitcherOpen] = useState(false);
+
+  // Global keyboard shortcut: Cmd/Ctrl + P
+  const handleGlobalKeyDown = useCallback((e: KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === "p") {
+      e.preventDefault();
+      setQuickSwitcherOpen((prev) => !prev);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
+  }, [handleGlobalKeyDown]);
 
   const activeDoc = documents.find((d) => d.id === activeTabId) ?? null;
 
@@ -143,6 +161,12 @@ export function AppLayout() {
 
       {/* Status bar */}
       <StatusBar />
+
+      {/* Quick Switcher modal (Cmd+P) */}
+      <QuickSwitcher
+        isOpen={quickSwitcherOpen}
+        onClose={() => setQuickSwitcherOpen(false)}
+      />
     </div>
   );
 }

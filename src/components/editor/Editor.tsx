@@ -24,6 +24,8 @@ import { SlashCommands } from "./extensions/SlashCommands";
 import { getSuggestionItems, renderSuggestion } from "./extensions/suggestion";
 import { WikiLink } from "./extensions/WikiLink";
 import { getWikiSuggestionItems, renderWikiSuggestion } from "./extensions/wikiSuggestion";
+import { TagExtension } from "./extensions/TagExtension";
+import { getTagSuggestionItems, renderTagSuggestion } from "./extensions/tagSuggestion";
 
 const lowlight = createLowlight(common);
 
@@ -71,7 +73,7 @@ export function Editor({ docId, loroDoc }: EditorProps) {
       Highlight.configure({ multicolor: true }),
       Underline,
       Typography,
-      Placeholder.configure({ placeholder: "Start writing… (type / for commands)" }),
+      Placeholder.configure({ placeholder: "Start writing… (type / for commands, # for tags)" }),
       SlashCommands.configure({
         suggestion: {
           items: getSuggestionItems,
@@ -82,6 +84,12 @@ export function Editor({ docId, loroDoc }: EditorProps) {
         suggestion: {
           items: getWikiSuggestionItems,
           render: renderWikiSuggestion,
+        },
+      }),
+      TagExtension.configure({
+        suggestion: {
+          items: getTagSuggestionItems,
+          render: renderTagSuggestion,
         },
       }),
     ],

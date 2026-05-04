@@ -137,6 +137,18 @@ export async function getBacklinks(targetId: string): Promise<DocumentLink[]> {
   return rows;
 }
 
+/**
+ * Returns ALL links in the vault (for the graph view).
+ */
+export async function getAllLinks(): Promise<DocumentLink[]> {
+  const db = await getDatabase();
+  const rows = await db.select<DocumentLink[]>(
+    `SELECT source_id AS sourceId, target_id AS targetId, context
+     FROM links`,
+  );
+  return rows;
+}
+
 // ── Tags ─────────────────────────────────────────────────────────────────────
 
 /**
@@ -175,6 +187,17 @@ export async function getDocumentsByTag(tag: string): Promise<VaultDocument[]> {
     [tag],
   );
   return rows.map(mapRow);
+}
+
+/**
+ * Returns all unique tag names across all documents (for autocompletion).
+ */
+export async function getAllUniqueTags(): Promise<string[]> {
+  const db = await getDatabase();
+  const rows = await db.select<{ tag: string }[]>(
+    `SELECT DISTINCT tag FROM tags ORDER BY tag`,
+  );
+  return rows.map((r) => r.tag);
 }
 
 // ── Internal helpers ─────────────────────────────────────────────────────────

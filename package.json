@@ -50,6 +50,7 @@
     "loro-prosemirror": "^0.4.3",
     "lowlight": "^3.3.0",
     "lucide-react": "^1.14.0",
+    "react-force-graph-2d": "^1.29.1",
     "react-router-dom": "^7.14.2",
     "tippy.js": "^6.3.7",
     "zustand": "^5.0.12"

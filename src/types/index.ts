@@ -30,6 +30,7 @@ export interface VaultConfig {
   createdAt: number;
   syncEnabled: boolean;
   encryptionEnabled: boolean;
+  salt?: string; // Base64 encoded 16-byte salt
 }
 
 /** A single full-text search result with relevance score */
