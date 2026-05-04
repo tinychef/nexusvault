@@ -5,6 +5,7 @@ import { useDocument } from "@hooks/useDocument";
 import { Sidebar } from "@components/sidebar/Sidebar";
 import { Editor } from "@components/editor/Editor";
 import { QuickSwitcher } from "@components/QuickSwitcher";
+import { CommandPalette } from "@components/CommandPalette";
 import { StatusBar } from "./StatusBar";
 import { TabBar } from "./TabBar";
 import { PanelLeft, Link2, Network, Bot } from "lucide-react";
@@ -61,12 +62,17 @@ export function AppLayout() {
   const [loroDoc, setLoroDoc] = useState<LoroDoc | null>(null);
   const [isDocLoading, setIsDocLoading] = useState(false);
   const [quickSwitcherOpen, setQuickSwitcherOpen] = useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
   const toggleQuickSwitcher = useCallback(() => {
     setQuickSwitcherOpen((prev) => !prev);
   }, []);
 
-  useKeyboardShortcuts({ onQuickSwitcher: toggleQuickSwitcher });
+  const toggleCommandPalette = useCallback(() => {
+    setCommandPaletteOpen((prev) => !prev);
+  }, []);
+
+  useKeyboardShortcuts({ onQuickSwitcher: toggleQuickSwitcher, onCommandPalette: toggleCommandPalette });
 
   const activeDoc = documents.find((d) => d.id === activeTabId) ?? null;
 
@@ -127,6 +133,14 @@ export function AppLayout() {
       {/* Main editor area */}
       <main className="editor-area" role="main">
         <TabBar />
+        {/* Breadcrumb navigation */}
+        {activeDoc && (
+          <div className="editor-breadcrumb" aria-label="Breadcrumb">
+            <span className="breadcrumb-vault">My Vault</span>
+            <span className="breadcrumb-sep" aria-hidden="true">/</span>
+            <span className="breadcrumb-title">{activeDoc.title || "Untitled"}</span>
+          </div>
+        )}
         {isDocLoading ? (
           <div className="empty-state">
             <div className="empty-state-icon spin">⟳</div>
@@ -195,6 +209,16 @@ export function AppLayout() {
       <QuickSwitcher
         isOpen={quickSwitcherOpen}
         onClose={() => setQuickSwitcherOpen(false)}
+      />
+
+      {/* Command Palette (Cmd+K) */}
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        onOpenQuickSwitcher={() => {
+          setCommandPaletteOpen(false);
+          setQuickSwitcherOpen(true);
+        }}
       />
     </div>
   );

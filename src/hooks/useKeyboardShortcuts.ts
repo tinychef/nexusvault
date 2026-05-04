@@ -4,13 +4,14 @@ import { useDocument } from "./useDocument";
 
 interface ShortcutOptions {
   onQuickSwitcher: () => void;
+  onCommandPalette: () => void;
 }
 
 /**
  * Registers global keyboard shortcuts for the app.
  * Editor-level shortcuts (bold, italic, etc.) are handled by TipTap directly.
  */
-export function useKeyboardShortcuts({ onQuickSwitcher }: ShortcutOptions) {
+export function useKeyboardShortcuts({ onQuickSwitcher, onCommandPalette }: ShortcutOptions) {
   const { toggleSidebar } = useEditorStore();
   const { createDocument } = useDocument();
 
@@ -23,6 +24,11 @@ export function useKeyboardShortcuts({ onQuickSwitcher }: ShortcutOptions) {
         case "p":
           e.preventDefault();
           onQuickSwitcher();
+          break;
+
+        case "k":
+          e.preventDefault();
+          onCommandPalette();
           break;
 
         case "n":
@@ -45,5 +51,5 @@ export function useKeyboardShortcuts({ onQuickSwitcher }: ShortcutOptions) {
 
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [onQuickSwitcher, createDocument, toggleSidebar]);
+  }, [onQuickSwitcher, onCommandPalette, createDocument, toggleSidebar]);
 }

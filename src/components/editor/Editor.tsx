@@ -20,6 +20,7 @@ import { LoroSyncPlugin, LoroUndoPlugin } from "loro-prosemirror";
 import { useEditorStore } from "@stores/editor";
 import { useDocument } from "@hooks/useDocument";
 import { EditorToolbar } from "./EditorToolbar";
+import { InlineToolbar } from "./InlineToolbar";
 import { SlashCommands } from "./extensions/SlashCommands";
 import { getSuggestionItems, renderSuggestion } from "./extensions/suggestion";
 import { WikiLink } from "./extensions/WikiLink";
@@ -55,6 +56,7 @@ export function Editor({ docId, loroDoc }: EditorProps) {
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const editor = useEditor({
+    autofocus: "end",
     extensions: [
       StarterKit.configure({
         // LoroSyncPlugin handles its own history
@@ -137,6 +139,9 @@ export function Editor({ docId, loroDoc }: EditorProps) {
 
   return (
     <div className="editor-wrapper">
+      {/* Floating inline toolbar — appears on text selection */}
+      <InlineToolbar editor={editor} />
+      {/* Fixed toolbar — hidden by default, shown on hover via CSS */}
       <EditorToolbar editor={editor} />
       <div className="editor-scroll-area">
         <EditorContent editor={editor} />
